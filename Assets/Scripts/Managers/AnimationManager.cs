@@ -5,15 +5,21 @@ using Animancer;
 using System;
 
 public class AnimationManager : LocalSingleton<AnimationManager>
-{    
+{
+    #region Variables
     Action endFunctionAction;
     bool isAnimationEnded;
+
     [Header("PlayerAnimations")]
+
     public AnimationClip idle;
     public AnimationClip playerWalk;
     public AnimationClip injuredLeftFootWalk;
     public AnimationClip injuredRightFootWalk;
     public AnimationClip leglessWalk;
+    #endregion
+
+    #region AnimationPlayers
     public float PlayAnim(AnimationClip clip, AnimancerComponent anim, float fade = 0.3f, float speed = 1, Action endAnimation = null)
     {
         var state = anim.Play(clip, fade);
@@ -41,4 +47,5 @@ public class AnimationManager : LocalSingleton<AnimationManager>
             endFunctionAction();
         }
     }
+    #endregion
 }

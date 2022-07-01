@@ -4,6 +4,7 @@ using UnityEngine;
 using DG.Tweening;
 public class SpherePositioner : MonoBehaviour
 {
+    #region Variables
     public PartsOfBody myPartOfBody;
 
     List<Vector3> spherePositions = new List<Vector3>();
@@ -12,6 +13,10 @@ public class SpherePositioner : MonoBehaviour
 
     float playerHeightWhenCrawling = 0.165f,playerHeightWhenWalkingWithLeg=-0.03f, playerHeightWhenWalkingWithNoLeg = -0.8f;
 
+    Transform garbage;
+    #endregion
+
+    #region Unity
     void Start()
     {
         for (int i = 0; i < transform.childCount; i++)
@@ -21,8 +26,9 @@ public class SpherePositioner : MonoBehaviour
         groundLayer = GameManager.Instance.groundLayer;
         garbage = GameManager.Instance.garbage;
     }
+    #endregion
 
-    Transform garbage;
+    #region SphereManipulators
     public void ReleaseSpheres(int whichChild)
     {        
         while(transform.childCount>whichChild)
@@ -31,9 +37,7 @@ public class SpherePositioner : MonoBehaviour
 
             objOnProcess.SetParent(garbage);           
             objOnProcess.GetComponent<Rigidbody>().isKinematic=false;
-            objOnProcess.GetComponent<SphereCollider>().isTrigger = false;
-
-            //WAController.WaFunction(() => {objOnProcess.gameObject.SetActive(false);}, 5);
+            objOnProcess.GetComponent<SphereCollider>().isTrigger = false;            
         }
         if(myPartOfBody==PartsOfBody.body&&!LevelManager.isGameEnded)
         {
@@ -53,7 +57,10 @@ public class SpherePositioner : MonoBehaviour
         {
             mySphere.GetComponent<SphereCollider>().enabled = true;
         };
-    }        
+    }
+    #endregion
+
+    #region Checker
     public IEnumerator GroundCheck()
     {        
         if(transform.childCount>0)
@@ -73,34 +80,5 @@ public class SpherePositioner : MonoBehaviour
         }
         yield return null;
     }
-    //public IEnumerator GroundCheck()
-    //{
-    //    if (transform.childCount > 0)
-    //    {
-    //        if (myPartOfBody == PartsOfBody.body)
-    //        {
-    //            GameManager.Instance.player.DOKill();
-    //            GameManager.Instance.player.DOMoveY(playerHeightWhenCrawling, 0.15f);
-    //        }
-    //        else
-    //        {
-    //            Transform objClosestToGround = transform.GetChild(transform.childCount - 1);
-
-    //            float waitDelay = 0.1f;
-    //            float unitMoveDistance = 0.05f;
-
-    //            if (objClosestToGround.position.y < yGroundHeight)
-    //            {
-    //                unitMoveDistance *= -1;
-    //            }
-    //            while (!Physics.CheckSphere(objClosestToGround.position, .1f, groundLayer))
-    //            {
-    //                GameManager.Instance.player.DOKill();
-    //                GameManager.Instance.player.DOMoveY(GameManager.Instance.player.position.y - unitMoveDistance, waitDelay).SetEase(Ease.Linear);
-    //                yield return null;
-    //            }
-    //        }
-    //    }
-    //    yield return null;
-    //}
+    #endregion
 }

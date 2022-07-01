@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class FinishSpot : MonoBehaviour
 {
+    #region Unity
     void OnTriggerEnter(Collider other)
     {
         if(other.CompareTag("Sphere"))
@@ -13,5 +14,5 @@ public class FinishSpot : MonoBehaviour
             LevelManager.Instance.OnLevelCompleted();
         }
     }
-
+    #endregion
 }

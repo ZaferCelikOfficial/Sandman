@@ -4,12 +4,29 @@ using UnityEngine;
 
 public class CollectableSpheres : Collectable
 {
+    #region Variables
     [SerializeField] GameObject spherePrefab;
-    int sphereRadiusLayerCount = 4;        
+
+    int sphereRadiusLayerCount = 4;
+    #endregion
+
+    #region Unity
     void Start()
     {        
         CreateSpheres();
     }
+    void OnTriggerEnter(Collider other)
+    {        
+        if(other.CompareTag("Sphere"))
+        {
+            GetComponent<BoxCollider>().enabled = false;
+            BodyCountController.Instance.CalculateCurrentPercentages();
+            StartCoroutine(SpherePlacerNumerator());            
+        }        
+    }
+    #endregion
+
+    #region SphereInstantiation
 
     void CreateSpheres()
     {        
@@ -43,15 +60,9 @@ public class CollectableSpheres : Collectable
 
         return pos;
     }
-    void OnTriggerEnter(Collider other)
-    {        
-        if(other.CompareTag("Sphere"))
-        {
-            GetComponent<BoxCollider>().enabled = false;
-            BodyCountController.Instance.CalculateCurrentPercentages();
-            StartCoroutine(SpherePlacerNumerator());            
-        }        
-    }
+    #endregion
+
+    #region CollectableSphereEquiper
     IEnumerator SpherePlacerNumerator()
     {
         int myChildCount = transform.childCount;
@@ -61,8 +72,7 @@ public class CollectableSpheres : Collectable
             BodyCountController.Instance.EquipSphere(transform.GetChild(0).gameObject);
             yield return null;
         }
-
-        BodyCountController.Instance.CheckBodyParameters();
-        
+        BodyCountController.Instance.CheckBodyParameters();        
     }
+    #endregion
 }

@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+#region Enum
 public enum PartsOfBody
 {
     head,
@@ -11,8 +11,10 @@ public enum PartsOfBody
     leftLeg,
     rightLeg,
 }
+#endregion
 public class BodyCountController : LocalSingleton<BodyCountController>
 {
+    #region BodyPartInformations
     [System.Serializable]
     public class BodyPartInformations
     {
@@ -21,20 +23,27 @@ public class BodyCountController : LocalSingleton<BodyCountController>
         public int initialMemberCount;
         public float currentPercentage=100;
     }
+    #endregion
+
+    #region variables
     public BodyPartInformations[] bodyPartInformations;
 
     List<PartsOfBody> crawlEquipingSpherePriorityOrder = new List<PartsOfBody>();
     List<PartsOfBody> walkEquipingSpherePriorityOrder = new List<PartsOfBody>();
+    #endregion
 
+    #region Unity
     void Start()
     {
-        CrawlEquipOrder();
-        WalkEquipOrder();
+        CreateCrawlEquipOrder();
+        CreateWalkEquipOrder();
 
         CalculateInitialMemberCounts();
     }
-    #region EquipingSphereOrders
-    void CrawlEquipOrder()
+    #endregion
+
+    #region EquipingOrderers
+    void CreateCrawlEquipOrder()
     {
         crawlEquipingSpherePriorityOrder.Add(PartsOfBody.leftArm);
         crawlEquipingSpherePriorityOrder.Add(PartsOfBody.rightArm);
@@ -43,7 +52,7 @@ public class BodyCountController : LocalSingleton<BodyCountController>
         crawlEquipingSpherePriorityOrder.Add(PartsOfBody.leftLeg);
         crawlEquipingSpherePriorityOrder.Add(PartsOfBody.rightLeg);
     }
-    void WalkEquipOrder()
+    void CreateWalkEquipOrder()
     {
         walkEquipingSpherePriorityOrder.Add(PartsOfBody.body);
         walkEquipingSpherePriorityOrder.Add(PartsOfBody.leftLeg);
@@ -53,20 +62,8 @@ public class BodyCountController : LocalSingleton<BodyCountController>
         walkEquipingSpherePriorityOrder.Add(PartsOfBody.rightArm);
     }
     #endregion
-    void CalculateInitialMemberCounts()
-    {
-        for (int i = 0; i < bodyPartInformations.Length; i++)
-        {
-            bodyPartInformations[i].initialMemberCount=bodyPartInformations[i].spherePositioner.transform.childCount;
-        }
-    }
-    public void CalculateCurrentPercentages()
-    {
-        for (int i = 0; i < bodyPartInformations.Length; i++)
-        {
-            bodyPartInformations[i].currentPercentage = (bodyPartInformations[i].spherePositioner.transform.childCount)*(100)/ bodyPartInformations[i].initialMemberCount;
-        }
-    }
+
+    #region Getters
     public BodyPartInformations GetBodyPartInfo(PartsOfBody myPartOfBody)
     {
         for (int i = 0; i < bodyPartInformations.Length; i++)
@@ -78,32 +75,48 @@ public class BodyCountController : LocalSingleton<BodyCountController>
         }
         return null;
     }
+    public int GetFinishPercentage()
+    {
+        int totalObject = 0;
+        int currentObjectCount = 0;
+        CalculateCurrentPercentages();
+        for (int i = 0; i < bodyPartInformations.Length; i++)
+        {
+            totalObject += bodyPartInformations[i].initialMemberCount;
+            currentObjectCount += Mathf.FloorToInt(bodyPartInformations[i].currentPercentage * bodyPartInformations[i].initialMemberCount / 100);
+        }
+        return ((100 * currentObjectCount) / totalObject);
+    }
+
+    #endregion
+
+    #region Checkers
     public void CheckBodyParameters()
-    {        
+    {
         CheckBodyCounts();
         CheckTotalBodyCount();
     }
     public void CheckGrounding()
     {
-        float leftLegCount=0;
-        float rightLegCount=0;
+        float leftLegCount = 0;
+        float rightLegCount = 0;
         for (int i = 0; i < bodyPartInformations.Length; i++)
         {
 
-            if (bodyPartInformations[i].partsOfBody==PartsOfBody.leftLeg)
+            if (bodyPartInformations[i].partsOfBody == PartsOfBody.leftLeg)
             {
                 leftLegCount = bodyPartInformations[i].spherePositioner.transform.childCount;
             }
             else if (bodyPartInformations[i].partsOfBody == PartsOfBody.rightLeg)
             {
-                rightLegCount= bodyPartInformations[i].spherePositioner.transform.childCount;
+                rightLegCount = bodyPartInformations[i].spherePositioner.transform.childCount;
             }
         }
-        if(leftLegCount>=rightLegCount)
+        if (leftLegCount >= rightLegCount)
         {
             GetBodyPartInfo(PartsOfBody.leftLeg).spherePositioner.StartCoroutine(GetBodyPartInfo(PartsOfBody.leftLeg).spherePositioner.GroundCheck());
         }
-        else if(leftLegCount < rightLegCount)
+        else if (leftLegCount < rightLegCount)
         {
             GetBodyPartInfo(PartsOfBody.rightLeg).spherePositioner.StartCoroutine(GetBodyPartInfo(PartsOfBody.leftLeg).spherePositioner.GroundCheck());
         }
@@ -111,75 +124,79 @@ public class BodyCountController : LocalSingleton<BodyCountController>
     public void CheckGrounding(PartsOfBody myPartOfBody)
     {
         SpherePositioner mySpherePositioner = GetBodyPartInfo(myPartOfBody).spherePositioner;
-        mySpherePositioner.StartCoroutine(mySpherePositioner.GroundCheck());       
+        mySpherePositioner.StartCoroutine(mySpherePositioner.GroundCheck());
     }
     void CheckTotalBodyCount()
     {
         int totalObject = 0;
         int currentObjectCount = 0;
-        
+
         for (int i = 0; i < bodyPartInformations.Length; i++)
         {
             totalObject += bodyPartInformations[i].initialMemberCount;
             currentObjectCount += Mathf.FloorToInt(bodyPartInformations[i].currentPercentage * bodyPartInformations[i].initialMemberCount / 100);
         }
 
-        float myPercentage=((100 * currentObjectCount) / totalObject);        
-        if (((myPercentage<4)||GetBodyPartInfo(PartsOfBody.body).currentPercentage==0)&&!LevelManager.isGameEnded)
+        float myPercentage = ((100 * currentObjectCount) / totalObject);
+        if (((myPercentage < 4) || GetBodyPartInfo(PartsOfBody.body).currentPercentage == 0) && !LevelManager.isGameEnded)
         {
             LevelManager.Instance.OnLevelFailed();
             for (int i = 0; i < bodyPartInformations.Length; i++)
             {
-                bodyPartInformations[i].spherePositioner.ReleaseSpheres(0);                
+                bodyPartInformations[i].spherePositioner.ReleaseSpheres(0);
             }
         }
     }
     void CheckBodyCounts()
     {
         CalculateCurrentPercentages();
-        if(GetBodyPartInfo(PartsOfBody.leftLeg).currentPercentage>80&& GetBodyPartInfo(PartsOfBody.rightLeg).currentPercentage>80)
+        if (GetBodyPartInfo(PartsOfBody.leftLeg).currentPercentage > 80 && GetBodyPartInfo(PartsOfBody.rightLeg).currentPercentage > 80)
         {
             PlayerAnimationController.Instance.PlayWalkNormal();
-            CheckGrounding();            
+            CheckGrounding();
         }
         else if (GetBodyPartInfo(PartsOfBody.leftLeg).currentPercentage - GetBodyPartInfo(PartsOfBody.rightLeg).currentPercentage > 20)
         {
             PlayerAnimationController.Instance.PlayWalkInjuredRight();
-            CheckGrounding(PartsOfBody.leftLeg);            
+            CheckGrounding(PartsOfBody.leftLeg);
         }
         else if (GetBodyPartInfo(PartsOfBody.rightLeg).currentPercentage - GetBodyPartInfo(PartsOfBody.leftLeg).currentPercentage > 20)
         {
             PlayerAnimationController.Instance.PlayWalkInjuredLeft();
-            CheckGrounding(PartsOfBody.rightLeg);            
+            CheckGrounding(PartsOfBody.rightLeg);
         }
-        else if (GetBodyPartInfo(PartsOfBody.leftLeg).currentPercentage<3&& GetBodyPartInfo(PartsOfBody.rightLeg).currentPercentage<3)
+        else if (GetBodyPartInfo(PartsOfBody.leftLeg).currentPercentage < 3 && GetBodyPartInfo(PartsOfBody.rightLeg).currentPercentage < 3)
         {
             PlayerAnimationController.Instance.PlayWalkLegless();
-            CheckGrounding(PartsOfBody.body);            
+            CheckGrounding(PartsOfBody.body);
         }
         else
         {
             PlayerAnimationController.Instance.PlayWalkNormal();
-            CheckGrounding();            
-        }        
+            CheckGrounding();
+        }
     }
-    public int GetFinishPercentage()
+    #endregion
+
+    #region BodyCountCalculators
+    void CalculateInitialMemberCounts()
     {
-        int totalObject=0;
-        int currentObjectCount=0;
-        CalculateCurrentPercentages();
         for (int i = 0; i < bodyPartInformations.Length; i++)
         {
-            totalObject += bodyPartInformations[i].initialMemberCount;
-            currentObjectCount+= Mathf.FloorToInt(bodyPartInformations[i].currentPercentage * bodyPartInformations[i].initialMemberCount / 100);
+            bodyPartInformations[i].initialMemberCount = bodyPartInformations[i].spherePositioner.transform.childCount;
         }
-        return ((100 * currentObjectCount )/ totalObject);
     }
-    public void ReleaseLegs()
+    public void CalculateCurrentPercentages()
     {
-        GetBodyPartInfo(PartsOfBody.leftLeg).spherePositioner.ReleaseSpheres(0);
-        GetBodyPartInfo(PartsOfBody.rightLeg).spherePositioner.ReleaseSpheres(0);
+        for (int i = 0; i < bodyPartInformations.Length; i++)
+        {
+            bodyPartInformations[i].currentPercentage = (bodyPartInformations[i].spherePositioner.transform.childCount) * (100) / bodyPartInformations[i].initialMemberCount;
+        }
     }
+    #endregion
+
+    #region SphereEquippers
+
     public void EquipSphere(GameObject sphereObject)
     {
         if(PlayerAnimationController.Instance.characterAnimationState==CharacterAnimationState.walkLegless)
@@ -205,4 +222,13 @@ public class BodyCountController : LocalSingleton<BodyCountController>
             }
         }
     }
+    #endregion
+
+    #region SphereReleaser
+    public void ReleaseLegs()
+    {
+        GetBodyPartInfo(PartsOfBody.leftLeg).spherePositioner.ReleaseSpheres(0);
+        GetBodyPartInfo(PartsOfBody.rightLeg).spherePositioner.ReleaseSpheres(0);
+    }
+    #endregion
 }

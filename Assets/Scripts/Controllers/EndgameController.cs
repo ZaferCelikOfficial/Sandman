@@ -5,7 +5,11 @@ using TMPro;
 
 public class EndgameController : MonoBehaviour
 {
+    #region variables
     [SerializeField] TextMeshProUGUI scoreText;
+    #endregion
+
+    #region ScoreIncreaser
     public IEnumerator ScoreIncreaser(float playerScore)
     {
         float myScore = 0;
@@ -17,4 +21,5 @@ public class EndgameController : MonoBehaviour
             yield return new WaitForSeconds(0.017f);
         }
     }
+    #endregion
 }

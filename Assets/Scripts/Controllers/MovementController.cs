@@ -5,6 +5,7 @@ using DG.Tweening;
 
 public class MovementController : MonoBehaviour
 {
+    #region variables
     Rigidbody rb;            
 
     float lastXDirection;
@@ -12,10 +13,23 @@ public class MovementController : MonoBehaviour
     float speed = 5f;
 
     Vector3 moveDirection;
+    #endregion
+
+    #region Unity
     void Start()
     {
         rb = GetComponent<Rigidbody>();        
     }
+    void Update()
+    {
+        if(LevelManager.isGameStarted&&!LevelManager.isGameEnded)
+        {
+            InputControl();
+        }        
+    }
+    #endregion
+
+    #region PlayerStopper
     public void StopPlayerWon()
     {
         WAController.WaFunction(() => { 
@@ -27,6 +41,9 @@ public class MovementController : MonoBehaviour
     {
         WAController.WaFunction(() => { rb.velocity = Vector3.zero; }, 0.1f);
     }
+    #endregion
+
+    #region UserInputs
     void InputControl()
     {
         moveDirection.z = 1;
@@ -71,11 +88,5 @@ public class MovementController : MonoBehaviour
 
         transform.DORotate(new Vector3(0, moveDirection.x * 36f, 0), .5f);
     }
-    void Update()
-    {
-        if(LevelManager.isGameStarted&&!LevelManager.isGameEnded)
-        {
-            InputControl();
-        }        
-    }
+    #endregion
 }

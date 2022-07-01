@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class GameManager : LocalSingleton<GameManager>
 {
+    #region Variables
     public Camera cam;
 
     public Transform player;
@@ -14,4 +15,5 @@ public class GameManager : LocalSingleton<GameManager>
     public EndgameController endgameController;
 
     public LayerMask groundLayer;
+    #endregion
 }

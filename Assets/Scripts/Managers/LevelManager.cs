@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class LevelManager : LocalSingleton<LevelManager>
 {
+    #region Variables
     public static bool isGameStarted;
     public static bool isGameEnded;
 
@@ -15,18 +16,19 @@ public class LevelManager : LocalSingleton<LevelManager>
     [Header("Panels")]
 
     public GameObject LevelCompletedPanel;
-    public GameObject LevelFailedPanel, StartGamePanel, LevelPanel;    
+    public GameObject LevelFailedPanel, StartGamePanel, LevelPanel,IntroductionPanel;
+    #endregion
+
+    #region Unity
 
     void Awake()
     {                
         CreateLevel();
         PlayerPrefs.GetInt("LevelNo", 0);
     }
-    void Start()
-    {
-        //LevelPanel.SetActive(true);
-        //LevelText.text = "LEVEL " + LevelNumber.ToString();
-    }
+    #endregion
+
+    #region LevelCreator
     public void CreateLevel()
     {
         if ("Level" + PlayerPrefs.GetInt("currLevel", 1) != SceneManager.GetActiveScene().name)
@@ -34,9 +36,17 @@ public class LevelManager : LocalSingleton<LevelManager>
             SceneManager.LoadScene("Level" + PlayerPrefs.GetInt("currLevel", 1));
         }
         PlayerPrefs.GetInt("LevelNo", 0);
-        LevelNumber = PlayerPrefs.GetInt("levelNumberLooped", 1);                
+        LevelNumber = PlayerPrefs.GetInt("levelNumberLooped", 1);
         //Elephant.LevelStarted(LevelNumber);
     }
+    void UpdateLevelNumber()
+    {
+        //LevelPanel.SetActive(true);
+        //LevelText.text = "LEVEL " + LevelNumber.ToString();
+    }
+    #endregion
+
+    #region Buttons
     public void StartGame()
     {
         StartGamePanel.SetActive(false);
@@ -46,40 +56,10 @@ public class LevelManager : LocalSingleton<LevelManager>
         isGameStarted = true;
         isGameEnded = false;
     }
-
-    public void EndGame()
-    {
-        isGameEnded = true;        
-    }
     public void ReturntoMainMenu()
     {
         StartGamePanel.SetActive(true);
-        //IntroductionPanel.SetActive(false);
-    }
-    public void OnLevelCompleted()
-    {
-        
-        //Elephant.LevelCompleted(LevelNumber);
-        isGameStarted = false;
-        isGameEnded = true;        
-
-        GameManager.Instance.player.GetComponent<MovementController>().StopPlayerWon();             
-        
-        WAController.WaFunction(() =>
-        {
-            LevelCompletedPanel.SetActive(true);
-            GameManager.Instance.endgameController.StartCoroutine(GameManager.Instance.endgameController.ScoreIncreaser(BodyCountController.Instance.GetFinishPercentage()));
-            GameManager.Instance.confetti.Play();
-        }, 1f);
-    }
-    public void OnLevelFailed()
-    {        
-        //Elephant.LevelFailed(LevelNumber);
-        isGameStarted = false;
-        isGameEnded = true;
-
-        GameManager.Instance.player.GetComponent<MovementController>().StopPlayerFailed();
-        LevelFailedPanel.SetActive(true);     
+        IntroductionPanel.SetActive(false);
     }
     public void RestartLevel()
     {
@@ -105,11 +85,32 @@ public class LevelManager : LocalSingleton<LevelManager>
         PlayerPrefs.SetInt("currLevel", currLevel);
         SceneManager.LoadScene("Level" + currLevel);
     }
-    private void Update()
+    #endregion
+
+    #region LevelFinishStates
+    public void OnLevelCompleted()
     {
-        if (Input.GetKeyDown(KeyCode.K))
+        //Elephant.LevelCompleted(LevelNumber);
+        isGameStarted = false;
+        isGameEnded = true;
+
+        GameManager.Instance.player.GetComponent<MovementController>().StopPlayerWon();
+
+        WAController.WaFunction(() =>
         {
-            OnLevelFailed();
-        }
+            LevelCompletedPanel.SetActive(true);
+            GameManager.Instance.endgameController.StartCoroutine(GameManager.Instance.endgameController.ScoreIncreaser(BodyCountController.Instance.GetFinishPercentage()));
+            GameManager.Instance.confetti.Play();
+        }, 1f);
     }
+    public void OnLevelFailed()
+    {
+        //Elephant.LevelFailed(LevelNumber);
+        isGameStarted = false;
+        isGameEnded = true;
+
+        GameManager.Instance.player.GetComponent<MovementController>().StopPlayerFailed();
+        LevelFailedPanel.SetActive(true);
+    }
+    #endregion
 }

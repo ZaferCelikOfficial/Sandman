@@ -5,6 +5,7 @@ using DG.Tweening;
 
 public class RotateAroundObstacle : Obstacle
 {
+    #region Unity
     void Start()
     {
         StartCoroutine(RotateObject(transform));    
@@ -16,14 +17,5 @@ public class RotateAroundObstacle : Obstacle
             other.GetComponentInParent<SpherePositioner>().ReleaseSpheres(other.transform.GetSiblingIndex());
         }
     }
-    public IEnumerator RotateObject(Transform myTransform)
-    {
-        float rotateTime = 11.5f;
-        while (true)
-        {
-            myTransform.DORotate(new Vector3(0, myTransform.rotation.eulerAngles.y + 360, 0), rotateTime, RotateMode.FastBeyond360).SetEase(Ease.Linear);
-            yield return new WaitForSeconds(rotateTime);
-        }
-
-    }
+    #endregion
 }

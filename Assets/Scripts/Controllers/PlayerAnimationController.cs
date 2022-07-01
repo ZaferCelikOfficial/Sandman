@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Animancer;
+#region Enums
 public enum CharacterAnimationState
 {
     idle,
@@ -10,16 +11,24 @@ public enum CharacterAnimationState
     walkInjuredRight,
     walkLegless,    
 }
+#endregion
 
 public class PlayerAnimationController : LocalSingleton<PlayerAnimationController>
 {
+    #region variables
     public CharacterAnimationState characterAnimationState;
 
     [SerializeField] AnimancerComponent anim;
+    #endregion
+
+    #region Unity
     void Start()
     {
         Idle();
     }
+    #endregion
+
+    #region AnimationPlayers
     void Idle()
     {
         characterAnimationState = CharacterAnimationState.idle;
@@ -65,4 +74,5 @@ public class PlayerAnimationController : LocalSingleton<PlayerAnimationControlle
             AnimationManager.Instance.PlayAnim(AnimationManager.Instance.leglessWalk, anim, 0.3f, 1);
         }
     }
+    #endregion
 }
